@@ -1,0 +1,16 @@
+*
+
+!.gitignore
+!README.md
+
+!trombone/
+!trombone/**
+
+!tests/
+!tests/**
+
+!scripts/
+!scripts/**
+
+*.pyc
+*.pyi
