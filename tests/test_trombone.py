@@ -11,12 +11,12 @@ def trombone():
 
 
 def test_run_coleman_liau_index(trombone):
-    args = {
-        'tool': 'corpus.DocumentColemanLiauIndex',
-        'file': './tests/data/pdfs/',
-    }
+    key_values = [
+        ('tool', 'corpus.DocumentColemanLiauIndex'),
+        ('file', './tests/data/pdfs/'),
+        ('file', './tests/data/pdfs/ESPAF_032012_E.pdf'),
+    ]
 
-    output, error = trombone.run(args)
+    output, _ = trombone.run(key_values)
 
-    assert error == ""
     assert output != ""
