@@ -1,16 +1,17 @@
 import os
-from datetime import datetime
 from typing import Dict
 
 import pandas
 
 from trombone import Trombone
+from trombone.cache import Cache
 from trombone.loader import path_loader
 
-PDFS_PATH = '../tests/data/pdfs'
+PDFS_PATH = '../data/pdfs'
 CSV_FILEPATH = '../data/results.csv'
+CACHE_DIRECTORY = '../data/'
 
-tool_names_and_index_names = [
+TOOL_NAMES_AND_INDEX_NAMES = [
     ('DocumentDaleChallIndex', 'daleChallIndex'),
     ('DocumentColemanLiauIndex', 'colemanLiauIndex'),
     ('DocumentSMOGIndex', 'smogIndex'),
@@ -20,6 +21,7 @@ tool_names_and_index_names = [
 ]
 
 trombone = Trombone('../bin/trombone-5.2.1-SNAPSHOT-jar-with-dependencies.jar')
+cache = Cache(CACHE_DIRECTORY)
 
 
 def make_series_from_dict(data: Dict, name: str) -> pandas.Series:
@@ -31,13 +33,17 @@ def make_series_from_dict(data: Dict, name: str) -> pandas.Series:
 
 
 for filepaths in path_loader('../tests/data/pdfs/*.pdf', batch_size=50):
+    filepaths = list(filter(cache.has_not_been_processed, filepaths))
+    if not filepaths:
+        continue
+
     first_time_in_loop = True
     series = []
 
-    for tool, index_name in tool_names_and_index_names:
+    for tool, index_name in TOOL_NAMES_AND_INDEX_NAMES:
         key_values = [
             ('tool', f'corpus.{tool}'),
-            # ('storage', 'file'),  # Stock les textes déjà parsés dans des fichiers en cache plutôt que d'utiliser la mémoire
+            # ('storage', 'file'),  # Stock les textes dans des fichiers en cache plutôt que d'utiliser la mémoire vive
         ]
         # Ajout des fichiers à analyser
         key_values += [('file', filepath) for filepath in filepaths]
@@ -116,3 +122,5 @@ for filepaths in path_loader('../tests/data/pdfs/*.pdf', batch_size=50):
 
     else:
         df.to_csv(CSV_FILEPATH)
+
+    cache.mark_as_processed(filepaths)
