@@ -10,17 +10,17 @@ class Cache:
 
         self.cache_shelve_filepath = os.path.join(cache_path, 'cache.db')
 
-    def mark_as_processed(self, filepaths: Union[List[str], str]):
-        if type(filepaths) == list:
-            for filepath in filepaths:
+    def mark_as_processed(self, filenames: Union[List[str], str]):
+        if type(filenames) == list:
+            for filepath in filenames:
                 self._mark_as_processed(filepath)
         else:
-            self._mark_as_processed(filepaths)
+            self._mark_as_processed(filenames)
 
-    def _mark_as_processed(self, filepath: str):
+    def _mark_as_processed(self, filename: str):
         with shelve.open(self.cache_shelve_filepath) as db:
-            db[filepath] = True
+            db[filename] = True
 
-    def has_not_been_processed(self, filepath: str) -> bool:
+    def has_been_processed(self, filename: str) -> bool:
         with shelve.open(self.cache_shelve_filepath) as db:
-            return filepath not in db.keys()
+            return filename in db.keys()

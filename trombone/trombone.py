@@ -8,6 +8,9 @@ class Trombone:
     def __init__(self, jar_path: str):
         self.jar_path = jar_path
 
+    def run_indexes(self, tools: List):
+        pass
+
     def run(self, key_values: Optional[List[Tuple[str, str]]] = None) -> Tuple[str, str]:
         formatted_args = []
         if key_values:
