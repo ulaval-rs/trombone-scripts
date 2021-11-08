@@ -1,4 +1,5 @@
 import os
+import json
 from typing import Dict
 
 import pandas
@@ -32,7 +33,7 @@ def make_series_from_dict(data: Dict, name: str) -> pandas.Series:
     )
 
 
-for filepaths, filenames in path_loader_batch('../tests/data/pdfs/*.pdf', batch_size=50, cache=cache):
+for filepaths, filenames in path_loader_batch('../tests/data/pdfs/*.pdf', batch_size=100, cache=cache):
     if not filenames:
         continue
 
@@ -42,14 +43,17 @@ for filepaths, filenames in path_loader_batch('../tests/data/pdfs/*.pdf', batch_
     for tool, index_name in TOOL_NAMES_AND_INDEX_NAMES:
         key_values = [
             ('tool', f'corpus.{tool}'),
-            # ('storage', 'file'),  # Stock les textes dans des fichiers en cache plutôt que d'utiliser la mémoire vive
+            ('storage', 'file'),  # Stock les textes dans des fichiers en cache plutôt que d'utiliser la mémoire vive
         ]
         # Ajout des fichiers à analyser
         key_values += [('file', filepath) for filepath in filepaths]
 
-        output, error = trombone.run(key_values)
-        output = trombone.serialize_output(output)
-        print(output)
+        try:
+            output, error = trombone.run(key_values)
+            output = trombone.serialize_output(output)
+        except json.JSONDecodeError:
+            cache.mark_as_failed(filenames)
+            continue
 
         output = {key.lower(): value for key, value in output.items()}
         index = list(output[tool.lower()].keys())[0]
