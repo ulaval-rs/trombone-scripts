@@ -53,7 +53,7 @@ for filepaths, filenames in path_loader_batch('../tests/data/pdfs/*.pdf', batch_
             output = trombone.serialize_output(output)
         except json.JSONDecodeError:
             cache.mark_as_failed(filenames)
-            continue
+            break
 
         output = {key.lower(): value for key, value in output.items()}
         index = list(output[tool.lower()].keys())[0]
@@ -120,6 +120,9 @@ for filepaths, filenames in path_loader_batch('../tests/data/pdfs/*.pdf', batch_
 
         # Ajout des résultats de l'indice calculé
         series.append(pandas.Series(data=data, index=data.keys(), name=index_name))
+
+    if not series:
+        continue
 
     df = pandas.concat(series, axis=1)
 
