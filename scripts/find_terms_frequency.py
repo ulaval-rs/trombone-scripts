@@ -1,4 +1,5 @@
 import json
+import os
 from typing import Dict, List
 
 import pandas
@@ -8,7 +9,7 @@ from trombone.cache import Cache
 from trombone.loader import path_loader_batch
 
 PDFS_PATH = '../data/pdfs'
-CSV_FILEPATH = '../data/results.csv'
+CSV_FILEPATH = '../data/terms.csv'
 CACHE_PATH = '../data/cache-terms.db'
 
 trombone = Trombone('../bin/trombone-5.2.1-SNAPSHOT-jar-with-dependencies.jar')
@@ -41,8 +42,6 @@ def merge_results(df: pandas.DataFrame, new_result: pandas.DataFrame) -> pandas.
     return df
 
 
-results = pandas.DataFrame()
-
 for filepaths, filenames in path_loader_batch('../tests/data/pdfs/*.pdf', batch_size=1, cache=cache):
     if not filenames:
         continue
@@ -67,11 +66,13 @@ for filepaths, filenames in path_loader_batch('../tests/data/pdfs/*.pdf', batch_
         cache.mark_as_failed(filenames)
         continue
 
-    new_results = transform_terms_result_to_dataframe(output)
-    if results.empty:
-        results = new_results
-    else:
-        results = results.append(new_results, ignore_index=True)
+    results = transform_terms_result_to_dataframe(output)
 
-    results.to_csv('../data/terms.csv')
-    # cache.mark_as_processed(filenames)
+    # Écriture dans un fichier csv
+    if os.path.exists(CSV_FILEPATH):
+        results.to_csv(CSV_FILEPATH, mode='a', header=False, index=False)
+
+    else:
+        results.to_csv(CSV_FILEPATH, index=False)
+
+    cache.mark_as_processed(filenames)
