@@ -9,7 +9,7 @@ from trombone.loader import path_loader
 
 PDFS_PATH = '../data/pdfs'
 CSV_FILEPATH = '../data/results.csv'
-CACHE_DIRECTORY = '../data/'
+CACHE_PATH = '../data/cache.csv'
 
 TOOL_NAMES_AND_INDEX_NAMES = [
     ('DocumentDaleChallIndex', 'daleChallIndex'),
@@ -21,7 +21,7 @@ TOOL_NAMES_AND_INDEX_NAMES = [
 ]
 
 trombone = Trombone('../bin/trombone-5.2.1-SNAPSHOT-jar-with-dependencies.jar')
-cache = Cache(CACHE_DIRECTORY)
+cache = Cache()
 
 
 def make_series_from_dict(data: Dict, name: str) -> pandas.Series:

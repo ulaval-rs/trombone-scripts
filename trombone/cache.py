@@ -1,4 +1,3 @@
-import os
 import shelve
 from typing import List, Union
 
@@ -6,9 +5,7 @@ from typing import List, Union
 class Cache:
 
     def __init__(self, cache_path: str):
-        self.cache_path = cache_path
-
-        self.cache_shelve_filepath = os.path.join(cache_path, 'cache.db')
+        self.cache_shelve_filepath = cache_path
 
     def mark_as_processed(self, filenames: Union[List[str], str]):
         if type(filenames) == list:
