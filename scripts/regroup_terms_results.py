@@ -31,5 +31,5 @@ for term in df['term'].unique():
     }, ignore_index=True)
 
 
-print(new_df)
+new_df.to_csv('./data/corpus-terms.csv', index=False)
 
