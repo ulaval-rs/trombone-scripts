@@ -1,3 +1,7 @@
+"""
+Ce script obtient la fréquence des termes de document individuel,
+et les combines en un seul fichier csv
+"""
 import json
 import os
 from typing import Dict, List
@@ -34,15 +38,8 @@ def transform_terms_result_to_dataframe(result: Dict) -> pandas.DataFrame:
     return df
 
 
-def merge_results(df: pandas.DataFrame, new_result: pandas.DataFrame) -> pandas.DataFrame:
-    for _, row in new_result.iterrows():
-        if row['term'] in df['term']:
-            print('here')
 
-    return df
-
-
-for filepaths, filenames in path_loader_batch('../tests/data/pdfs/*.pdf', batch_size=1, cache=cache):
+for filepaths, filenames in path_loader_batch('../tests/data/pdfs/*_E.pdf', batch_size=1, cache=cache):
     if not filenames:
         continue
 
