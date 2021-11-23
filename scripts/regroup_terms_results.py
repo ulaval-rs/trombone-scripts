@@ -4,7 +4,11 @@ Ce dernier trouve la fréquence des termes par document, et les ajoute à un fic
 Ce script, `regroup_terms_results.py`, combine les résultats pour tous les documents
 pour obtenir les résultats pour le corpus.
 """
+import os
+
 import pandas
+
+CSV_FILEPATH = '../data/corpus-terms.csv'
 
 df = pandas.read_csv('../data/terms.csv')
 
@@ -13,10 +17,20 @@ new_df = pandas.DataFrame(
 )
 terms_without_duplicates = ()
 
+# Lit le fichier de résultats des termes regroupé (s'il existe, ici le fichier agit en tant que cache)
+if os.path.exists(CSV_FILEPATH):
+    already_processed_terms = pandas.read_csv(CSV_FILEPATH)
+else:
+    already_processed_terms = None
+
 for term in df['term'].unique():
     # On ignore les termes qui ne sont que des chiffres.
     if not term.isalpha():
         continue
+
+    if already_processed_terms is not None:
+        if term in already_processed_terms['term'].values:
+            continue
 
     # On trouve toutes les occurrences des termes par document.
     term_rows = df.loc[df['term'] == term]
@@ -30,6 +44,5 @@ for term in df['term'].unique():
         'totalTermsCount': sum(term_rows['totalTermsCount']),
     }, ignore_index=True)
 
-
-new_df.to_csv('./data/corpus-terms.csv', index=False)
+    new_df.to_csv(CSV_FILEPATH, index=False)
 
