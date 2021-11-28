@@ -8,15 +8,13 @@ from typing import Dict, List
 
 import pandas
 
-from trombone import Trombone
-from trombone.cache import Cache
-from trombone.loader import path_loader_batch
+from pytrombone import Trombone, Cache, filepaths_loader
 
 PDFS_PATH = '../data/pdfs'
 CSV_FILEPATH = '../data/terms.csv'
 CACHE_PATH = '../data/cache-terms.db'
 
-trombone = Trombone('../bin/trombone-5.2.1-SNAPSHOT-jar-with-dependencies.jar')
+trombone = Trombone()
 cache = Cache(CACHE_PATH)
 
 
@@ -38,8 +36,8 @@ def transform_terms_result_to_dataframe(result: Dict) -> pandas.DataFrame:
     return df
 
 
-
-for filepaths, filenames in path_loader_batch('../tests/data/pdfs/*_E.pdf', batch_size=1, cache=cache):
+for filepaths in filepaths_loader('../tests/data/pdfs/*_E.pdf', batch_size=1, cache=cache):
+    filenames = [os.path.basename(f) for f in filepaths]
     if not filenames:
         continue
 

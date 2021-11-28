@@ -4,9 +4,7 @@ from typing import Dict
 
 import pandas
 
-from trombone import Trombone
-from trombone.cache import Cache
-from trombone.loader import path_loader_batch
+from pytrombone import Trombone, Cache, filepaths_loader
 
 PDFS_PATH = '../data/pdfs'
 CSV_FILEPATH = '../data/results.csv'
@@ -21,7 +19,7 @@ TOOL_NAMES_AND_INDEX_NAMES = [
     ('DocumentFOGIndex', 'fogIndex'),
 ]
 
-trombone = Trombone('../bin/trombone-5.2.1-SNAPSHOT-jar-with-dependencies.jar')
+trombone = Trombone()
 cache = Cache(CACHE_PATH)
 
 
@@ -33,7 +31,8 @@ def make_series_from_dict(data: Dict, name: str) -> pandas.Series:
     )
 
 
-for filepaths, filenames in path_loader_batch('../tests/data/pdfs/*.pdf', batch_size=100, cache=cache):
+for filepaths in filepaths_loader('../tests/data/pdfs/*.pdf', batch_size=100, cache=cache):
+    filenames = [os.path.basename(f) for f in filepaths]
     if not filenames:
         continue
 
