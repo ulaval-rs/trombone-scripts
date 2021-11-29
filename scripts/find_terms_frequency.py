@@ -2,17 +2,35 @@
 Ce script obtient la fréquence des termes de document individuel,
 et les combines en un seul fichier csv
 """
+import getopt
 import json
 import os
+import sys
 from typing import Dict, List
 
 import pandas
 
 from pytrombone import Trombone, Cache, filepaths_loader
 
-PDFS_PATH = '../data/pdfs'
-CSV_FILEPATH = '../data/terms.csv'
-CACHE_PATH = '../data/cache-terms.db'
+PDFS_PATH_PATTERN = ''
+CSV_FILEPATH = ''
+CACHE_PATH = ''
+
+# Récupération des arguments
+optlist, _ = getopt.getopt(sys.argv[1:], '', ['pdfs_path_pattern=', 'csv_file=', 'cache_path='])
+
+for opt, value in optlist:
+    if 'pdfs_path_pattern' in opt:
+        PDFS_PATH_PATTERN = value
+
+    if 'csv_file' in opt:
+        CSV_FILEPATH = value
+
+    if 'cache_path' in opt:
+        CACHE_PATH = value
+
+if not PDFS_PATH_PATTERN or not CSV_FILEPATH or not CACHE_PATH:
+    raise ValueError('Les paramètres pdf_path_pattern, csv_file et cache_path doivent tous être fournies')
 
 trombone = Trombone()
 cache = Cache(CACHE_PATH)
@@ -36,7 +54,7 @@ def transform_terms_result_to_dataframe(result: Dict) -> pandas.DataFrame:
     return df
 
 
-for filepaths in filepaths_loader('../tests/data/pdfs/*_E.pdf', batch_size=1, cache=cache):
+for filepaths in filepaths_loader(PDFS_PATH_PATTERN, batch_size=1, cache=cache):
     filenames = [os.path.basename(f) for f in filepaths]
     if not filenames:
         continue

@@ -4,13 +4,30 @@ Ce dernier trouve la fréquence des termes par document, et les ajoute à un fic
 Ce script, `regroup_terms_results.py`, combine les résultats pour tous les documents
 pour obtenir les résultats pour le corpus.
 """
+import getopt
 import os
+import sys
 
 import pandas
 
-CSV_FILEPATH = '../data/corpus-terms.csv'
+CSV_FILEPATH = ''
+ALL_TERMS_FILEPATH = ''
 
-df = pandas.read_csv('../data/terms.csv')
+# Récupération des arguments
+optlist, _ = getopt.getopt(sys.argv[1:], '', ['csv_file=', 'all_terms_filepath='])
+
+for opt, value in optlist:
+    if 'csv_file' in opt:
+        CSV_FILEPATH = value
+
+    if 'all_terms_filepath' in opt:
+        ALL_TERMS_FILEPATH = value
+
+if not CSV_FILEPATH or not ALL_TERMS_FILEPATH:
+    raise ValueError('Les paramètres csv_file et all_terms_filepath doivent tous être fournies')
+
+
+df = pandas.read_csv(ALL_TERMS_FILEPATH)
 
 new_df = pandas.DataFrame(
     columns=['term', 'totalRawFreq', 'relativeFreqAvg', 'zscoreAvg', 'zscoreRatioAvg', 'tfidfAvg', 'totalTermsCount']

@@ -1,15 +1,34 @@
 import os
 import json
+import getopt
+import sys
 from typing import Dict
 
 import pandas
 
 from pytrombone import Trombone, Cache, filepaths_loader
 
-PDFS_PATH = '../data/pdfs'
-CSV_FILEPATH = '../data/results.csv'
-CACHE_PATH = '../data/cache.db'
+PDFS_PATH_PATTERN = ''
+CSV_FILEPATH = ''
+CACHE_PATH = ''
 
+# Récupération des arguments
+optlist, _ = getopt.getopt(sys.argv[1:], '', ['pdfs_path_pattern=', 'csv_file=', 'cache_path='])
+
+for opt, value in optlist:
+    if 'pdfs_path_pattern' in opt:
+        PDFS_PATH_PATTERN = value
+
+    if 'csv_file' in opt:
+        CSV_FILEPATH = value
+
+    if 'cache_path' in opt:
+        CACHE_PATH = value
+
+if not PDFS_PATH_PATTERN or not CSV_FILEPATH or not CACHE_PATH:
+    raise ValueError('Les paramètres pdf_path_pattern, csv_file et cache_path doivent tous être fournies')
+
+# Liste des outils (ici les indices de lisibilité) à calculer sur les documents
 TOOL_NAMES_AND_INDEX_NAMES = [
     ('DocumentDaleChallIndex', 'daleChallIndex'),
     ('DocumentColemanLiauIndex', 'colemanLiauIndex'),
@@ -31,7 +50,7 @@ def make_series_from_dict(data: Dict, name: str) -> pandas.Series:
     )
 
 
-for filepaths in filepaths_loader('../tests/data/pdfs/*.pdf', batch_size=100, cache=cache):
+for filepaths in filepaths_loader(PDFS_PATH_PATTERN, batch_size=100, cache=cache):
     filenames = [os.path.basename(f) for f in filepaths]
     if not filenames:
         continue

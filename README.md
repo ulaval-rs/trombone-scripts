@@ -44,6 +44,7 @@ de scripts Python grâce à la librairie Python https://pypi.org/project/pytromb
 et la fréquence des termes.
 
 ### Calcul des indices/mesures
+
 `script/calculate_indices_batch.py`
 
 ### Calcul de la fréquence des termes
