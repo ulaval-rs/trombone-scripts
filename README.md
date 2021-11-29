@@ -26,14 +26,14 @@ ssh <votre-nom-d'utilisateur>@beluga.calculcanada.ca
 ```
 
 ### Cloner le répertoire Github
-Cloner le répertoire Github https://github.com/ulaval-rs/andreanne-tremblay-simard
+Cloner le répertoire Github https://github.com/ulaval-rs/trombone-scripts
 afin d'avoir les fichiers et scripts nécessaires aux analyses :
 ```
-git clone https://github.com/ulaval-rs/andreanne-tremblay-simard.git
+git clone https://github.com/ulaval-rs/trombone-scripts.git
 ```
 Entrez par la suite dans le dossier du projet :
 ```
-cd andreanne-tremblay-simard
+cd trombone-scripts
 ```
 
 ## Analyses
