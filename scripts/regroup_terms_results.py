@@ -61,5 +61,9 @@ for term in df['term'].unique():
         'totalTermsCount': sum(term_rows['totalTermsCount']),
     }, ignore_index=True)
 
-    new_df.to_csv(CSV_FILEPATH, index=False)
+    # Écriture dans un fichier csv
+    if os.path.exists(CSV_FILEPATH):
+        new_df.to_csv(CSV_FILEPATH, mode='a', header=False, index=False)
 
+    else:
+        new_df.to_csv(CSV_FILEPATH, index=False)
