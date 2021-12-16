@@ -9,8 +9,10 @@ import os
 import sys
 
 import pandas
+from pytrombone import Cache
 
 CSV_FILEPATH = ''
+CACHE_PATH = './data/tmp.db'
 ALL_TERMS_FILEPATH = ''
 
 # Récupération des arguments
@@ -26,7 +28,6 @@ for opt, value in optlist:
 if not CSV_FILEPATH or not ALL_TERMS_FILEPATH:
     raise ValueError('Les paramètres csv_file et all_terms_filepath doivent tous être fournies')
 
-
 df = pandas.read_csv(ALL_TERMS_FILEPATH)
 
 new_df = pandas.DataFrame(
@@ -34,27 +35,24 @@ new_df = pandas.DataFrame(
 )
 terms_without_duplicates = ()
 
-# Lit le fichier de résultats des termes regroupé (s'il existe, ici le fichier agit en tant que cache)
-if os.path.exists(CSV_FILEPATH):
-    already_processed_terms = pandas.read_csv(CSV_FILEPATH)
-else:
-    already_processed_terms = None
+# Initialisation de la cache, qui marque si oui ou non un terme à été traité
+cache = Cache(CACHE_PATH)
 
 for term in df['term'].unique():
     # On ignore les termes qui ne sont que des chiffres.
     if not term.isalpha():
         continue
 
-    if already_processed_terms is not None:
-        if term in already_processed_terms['term'].values:
-            continue
+    # Vérifie que le terme n'a pas déjà été traité
+    if cache.has_been_processed(term):
+        continue
 
     # On trouve toutes les occurrences des termes par document.
     term_rows = df.loc[df['term'] == term]
     new_df = new_df.append({
         'term': term,
         'totalRawFreq': sum(term_rows['rawFreq']),
-        'relativeFreqAvg': sum(term_rows['relativeFreq']) / len(term_rows['relativeFreq']) / 1_000_000, # Pour obtenir une valeur normalisée
+        'relativeFreqAvg': sum(term_rows['relativeFreq']) / len(term_rows['relativeFreq']) / 1_000_000,  # Pour obtenir une valeur normalisée
         'zscoreAvg': sum(term_rows['zscore']) / len(term_rows['zscore']),
         'zscoreRatioAvg': sum(term_rows['zscoreRatio']) / len(term_rows['zscoreRatio']),
         'tfidfAvg': sum(term_rows['tfidf']) / len(term_rows['tfidf']),
@@ -67,3 +65,6 @@ for term in df['term'].unique():
 
     else:
         new_df.to_csv(CSV_FILEPATH, index=False)
+
+    # Marque le terme comme traité
+    cache.mark_as_processed(term)
