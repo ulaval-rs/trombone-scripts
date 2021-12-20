@@ -39,7 +39,14 @@ cache = Cache(CACHE_PATH)
 
 for term in df['term'].unique():
     # On ignore les termes qui ne sont que des chiffres.
+    if not isinstance(term, str):
+        # Marque le terme comme traité
+        cache.mark_as_processed(term)
+        continue
+        
     if not term.isalpha():
+        # Marque le terme comme traité
+        cache.mark_as_processed(term)
         continue
 
     # Vérifie que le terme n'a pas déjà été traité
