@@ -38,12 +38,9 @@ df = pandas.read_csv(ALL_TERMS_FILEPATH)
 cache = Cache(CACHE_PATH)
 
 for term in df['term'].unique():
+    term = str(term)
+
     # On ignore les termes qui ne sont que des chiffres.
-    if not isinstance(term, str):
-        # Marque le terme comme traité
-        cache.mark_as_processed(term)
-        continue
-        
     if not term.isalpha():
         # Marque le terme comme traité
         cache.mark_as_processed(term)
