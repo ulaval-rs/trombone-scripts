@@ -30,7 +30,7 @@ for opt, value in optlist:
         CACHE_PATH = value
 
 if not PDFS_PATH_PATTERN or not CSV_FILEPATH or not CACHE_PATH:
-    raise ValueError('Les paramètres pdf_path_pattern, csv_file et cache_path doivent tous être fournies')
+    raise ValueError('Les paramètres pdfs_path_pattern, csv_file et cache_path doivent tous être fournies')
 
 trombone = Trombone()
 cache = Cache(CACHE_PATH)
@@ -44,8 +44,11 @@ def make_series_from_dict(data: Dict, name: str) -> pandas.Series:
     )
 
 
-def transform_terms_result_to_dataframe(result: Dict) -> pandas.DataFrame:
+def transform_terms_result_to_dataframe(filename: str, result: Dict) -> pandas.DataFrame:
     terms: List[Dict] = result['documentTerms']['terms']
+    for term in terms:
+        term['filename'] = filename
+
     df = pandas.DataFrame.from_records(terms)
 
     # Retrait de valeurs inutiles
@@ -59,10 +62,13 @@ for filepaths in filepaths_loader(PDFS_PATH_PATTERN, batch_size=1, cache=cache):
     if not filenames:
         continue
 
+    # Parce qu'on utilise une batch_size=1
+    filename = filenames[0]
+
     key_values = [
         ('tool', 'corpus.DocumentTerms'),
-        # ('tool', 'corpus.CorpusTerms'),
         ('storage', 'file'),  # Stock les textes dans des fichiers en cache plutôt que d'utiliser la mémoire vive
+        ('minRawFreq', 5)
     ]
     # Ajout des fichiers à analyser
     key_values += [('file', filepath) for filepath in filepaths]
@@ -72,14 +78,15 @@ for filepaths in filepaths_loader(PDFS_PATH_PATTERN, batch_size=1, cache=cache):
         output = trombone.serialize_output(output)
 
     except json.JSONDecodeError:
-        cache.mark_as_failed(filenames)
+        cache.mark_as_failed(filename)
         continue
 
     if not output['documentTerms']['terms']:
-        cache.mark_as_failed(filenames)
+        cache.mark_as_failed(filename)
         continue
 
-    results = transform_terms_result_to_dataframe(output)
+
+    results = transform_terms_result_to_dataframe(filename, output)
 
     # Écriture dans un fichier csv
     if os.path.exists(CSV_FILEPATH):
