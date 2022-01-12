@@ -15,6 +15,7 @@ CSV_FILEPATH = ''
 CACHE_PATH = ''
 ALL_TERMS_FILEPATH = ''
 
+
 # Récupération des arguments
 optlist, _ = getopt.getopt(sys.argv[1:], '', ['csv_file=', 'cache_path=', 'all_terms_filepath='])
 
@@ -34,10 +35,22 @@ if not CSV_FILEPATH or not CACHE_PATH or not ALL_TERMS_FILEPATH:
 # Récupération des termes de tous les documents
 df = pandas.read_csv(ALL_TERMS_FILEPATH)
 
+unique_terms = df['term'].unique()
+unique_documents = df['filename'].unique()
+
+nbr_of_terms = len(unique_terms)
+nbr_of_documents = len(unique_documents)
+
+# Finding total number of terms
+total_number_of_terms = 0
+for document in unique_documents:
+    document_rows = df.loc[df['filename'] == document]
+    total_number_of_terms += len(document_rows)
+
 # Initialisation de la cache, qui marque si oui ou non un terme à été traité
 cache = Cache(CACHE_PATH)
 
-for term in df['term'].unique():
+for term in unique_terms:
     term = str(term)
 
     # On ignore les termes qui ne sont que des chiffres.
@@ -53,13 +66,16 @@ for term in df['term'].unique():
     # On trouve toutes les occurrences des termes par document.
     term_rows = df.loc[df['term'] == term]
     term_df = pandas.DataFrame(data={
-        'term': [term],
-        'totalRawFreq': [sum(term_rows['rawFreq'])],
-        'relativeFreqAvg': [sum(term_rows['relativeFreq']) / len(term_rows['relativeFreq']) / 1_000_000],  # Pour obtenir une valeur normalisée
-        'zscoreAvg': [sum(term_rows['zscore']) / len(term_rows['zscore'])],
-        'zscoreRatioAvg': [sum(term_rows['zscoreRatio']) / len(term_rows['zscoreRatio'])],
-        'tfidfAvg': [sum(term_rows['tfidf']) / len(term_rows['tfidf'])],
-        'totalTermsCount': [sum(term_rows['totalTermsCount'])],
+        'Term': [term],
+        'TotalOccurrences': [sum(term_rows['rawFreq'])],
+        'RelativeOccurrencesInAllDocument': [sum(term_rows['rawFreq']) / total_number_of_terms],
+
+        'AverageOccurrencesPerDocument': [sum(term_rows['rawFreq']) / nbr_of_documents],
+        'AverageRelativeOccurrencesPerDocument': [sum(term_rows['relativeFreq']) / nbr_of_documents / 1_000_000],  # Pour obtenir une valeur normalisée
+
+        'DocumentsWhereTermIsPresentCount': [len(term_rows['filename'].unique())],
+        'TotalTermsCount': [nbr_of_terms],
+        'TotalDocumentsCount': [nbr_of_documents],
     })
 
     # Écriture dans un fichier csv
