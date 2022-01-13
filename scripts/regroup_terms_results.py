@@ -45,7 +45,7 @@ nbr_of_documents = len(unique_documents)
 total_number_of_terms = 0
 for document in unique_documents:
     document_rows = df.loc[df['filename'] == document]
-    total_number_of_terms += len(document_rows)
+    total_number_of_terms += document_rows['totalTermsCount'].iloc[0]
 
 # Initialisation de la cache, qui marque si oui ou non un terme à été traité
 cache = Cache(CACHE_PATH)
