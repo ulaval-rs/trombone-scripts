@@ -38,8 +38,8 @@ df = pandas.read_csv(ALL_TERMS_FILEPATH)
 unique_terms = df['term'].unique()
 unique_documents = df['filename'].unique()
 
-nbr_of_terms = len(unique_terms)
-nbr_of_documents = len(unique_documents)
+nbr_of_unique_terms = len(unique_terms)
+nbr_of_unique_documents = len(unique_documents)
 
 # Finding total number of terms
 total_number_of_terms = 0
@@ -70,12 +70,13 @@ for term in unique_terms:
         'TotalOccurrences': [sum(term_rows['rawFreq'])],
         'RelativeOccurrencesInAllDocument': [sum(term_rows['rawFreq']) / total_number_of_terms],
 
-        'AverageOccurrencesPerDocument': [sum(term_rows['rawFreq']) / nbr_of_documents],
-        'AverageRelativeOccurrencesPerDocument': [sum(term_rows['relativeFreq']) / nbr_of_documents / 1_000_000],  # Pour obtenir une valeur normalisée
+        'AverageOccurrencesPerDocument': [sum(term_rows['rawFreq']) / nbr_of_unique_documents],
+        'AverageRelativeOccurrencesPerDocument': [sum(term_rows['relativeFreq']) / nbr_of_unique_documents / 1_000_000],  # Pour obtenir une valeur normalisée
 
         'DocumentsWhereTermIsPresentCount': [len(term_rows['filename'].unique())],
-        'TotalTermsCount': [nbr_of_terms],
-        'TotalDocumentsCount': [nbr_of_documents],
+        'TotalUniqueTermsCount': [nbr_of_unique_terms],
+        'TotalTermsCount': [total_number_of_terms],
+        'TotalDocumentsCount': [nbr_of_unique_documents],
     })
 
     # Écriture dans un fichier csv
